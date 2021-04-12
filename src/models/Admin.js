@@ -46,7 +46,7 @@ const AdminSchema =  new Schema({
 }, { timestanps: true});
 
 //Hooks if password is modified or not
-AdminSchema.pre('save', async function(name){
+AdminSchema.pre('save', async function(next){
     let admin = this;
     if(!admin.isModified("password")) return next();
     admin.password = await hash(admin.password, 10);
@@ -58,9 +58,8 @@ AdminSchema.methods.comparePassword = async function(password){
     return await compare(password, this.password);
 }
 
-
 //To generate signIn token
-AdminSchema.methods.generateJWT = async function(password){
+AdminSchema.methods.generateJWT = async function(){
     let payload = {
         name: this.name,
         email: this.email,
@@ -79,7 +78,7 @@ AdminSchema.methods.generatePasswordReset = function(){
 
 //Iterating arraysusing pick from lodash to filter password from the DB
  AdminSchema.methods.getAdminInfo = function(){
-     return pick(this, ["_id", "name", "email"]);
+     return pick(this, ["_id", "name", "email", "verified"]);
  };
 
  const Admin =model("admins", AdminSchema);
