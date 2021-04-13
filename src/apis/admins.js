@@ -2,11 +2,12 @@ import { Admin } from "../models";
 import { Router} from "express";
 import { join } from 'path';
 import { DOMAIN } from '../constants';
+import  { userAuth } from '../middlewares/auth-dashboard';
 import sendMail from '../functions/email-sender';
 import { randomBytes } from 'crypto';
 import { SignUpValidations, AuthenticateValidations} from "../validators";
 import Validator from "../middlewares/validator-middleware";
-
+import passport from "passport";
 
 const router = Router();
 
@@ -120,4 +121,19 @@ return res.sendFile(join(__dirname, "../templates/errors.html"));
         });
      }
  });
+
+
+ /**
+ * @description To get authenticated user dashboard
+ * @access Private
+ * @api/admins/api/dashboard
+ * @type GET
+ */
+
+ router.get('/api/dashboard', userAuth, async(req, res)=>{
+     console.log("REQ", req);
+    return res.status(200).json({
+    user: req.user,
+ });
+ })
 export default router;
