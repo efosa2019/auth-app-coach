@@ -5,9 +5,9 @@ import { DOMAIN } from '../constants';
 import  { userAuth } from '../middlewares/auth-dashboard';
 import sendMail from '../functions/email-sender';
 import { randomBytes } from 'crypto';
-import { SignUpValidations, AuthenticateValidations} from "../validators";
+import { SignUpValidations, AuthenticateValidations, ResetPassword} from "../validators";
 import Validator from "../middlewares/validator-middleware";
-import passport from "passport";
+
 
 const router = Router();
 
@@ -136,4 +136,117 @@ return res.sendFile(join(__dirname, "../templates/errors.html"));
     user: req.user,
  });
  })
+
+
+  /**
+ * @description To intitiate the password reset process
+ * @access Public
+ * @api/admins/api/reset-password
+ * @type PUT
+ */
+router.put('/api/reset-password', ResetPassword, Validator,  async(req, res)=>{
+    try{
+     let { email } = req.body;
+     let admin = await Admin.findOne({ email });
+     if(!admin){
+        return res.status(404).json({
+            success: false,
+            message: "Admin with the email is not found.",
+        });
+     }
+     admin.generatePasswordReset();
+     await admin.save();
+     //Sent the password reset link to the email
+     let html = `
+     <div>
+     <h1>Hello, ${admin.email}</h1>
+     <p>Please click the following link to reset your password.</p>
+     <p>If this password reset not created by you then you can ignore this email.</p>
+     <a href="${DOMAIN}admins/reset-password-now/${admin.resetPasswordToken}">Reset Now</a>
+    </div>
+     `;
+    await sendMail(admin.email, "Reset Password", "Please reset your password.", html);
+     return res.status(200).json({
+        success: true,
+        message: "Password reset link is sent to your email.",
+    });
+    }catch(err){
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred.",
+        });
+    }
+
+   });
+
+
+  /**
+ * @description To render password reset page
+ * @access Restricted via email
+ * @api/admins/reset-password-now/:resetPasswordToken
+ * @type GET
+ */
+
+router.get('/reset-password-now/:resetPasswordToken',  async(req, res)=>{
+    try{
+    let { resetPasswordToken } = req.params;
+    let admin = await Admin.findOne({resetPasswordToken, resetPasswordExpiresIn: {$gt: Date.now()}, });
+    if(!admin){
+        return res.status(401).json({
+            success: false,
+            message: "Password reset token is invalid or has expired.",
+        });
+    }
+    return res.sendFile(join(__dirname, "../templates/password-reset.html")); //Remove after testing
+    }catch(err){
+        return res.sendFile(join(__dirname, "../templates/errors.html"));
+    }
+});
+
+
+/**
+ * @descriptionTo To reset the password
+ * @access Restricted via email
+ * @api/admins/api/reset-password-now
+ * @type POST
+ */
+
+ router.post('/api/reset-password-now', async(req, res)=>{
+     try{
+    let { resetPasswordToken, password } = req.body;
+        let admin = await Admin.findOne({resetPasswordToken, resetPasswordExpiresIn: {$gt: Date.now()}, });
+        if(!admin){
+            return res.status(401).json({
+                success: false,
+                message: "Password reset token is invalid or has expired.",
+            });
+        }
+        admin.password = password;
+        admin.resetPasswordToken = undefined;
+        admin. resetPasswordExpiresIn = undefined;
+        await admin.save();
+
+         //Send confirmation of successful password change
+     let html = `
+     <div>
+     <h1>Hello, ${admin.email}</h1>
+     <p>Your password reset is successfully.</p>
+     <p>If this reset is not done by you then you can contact us immediately.</p>
+    
+    </div>
+     `;
+    await sendMail(admin.email, "Reset Password Successful", "Your password is changed.", html);
+        return res.status(200).json({
+            success: true,
+            message: "Your password reset is complete and successful. Login with your new password",
+        });
+        }catch(err){
+            return res.status(500).json({
+                success: false,
+                message: "Something went wrong",
+            });
+        }
+
+ });
+ 
 export default router;

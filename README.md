@@ -18,3 +18,5 @@ npm run dev
 
 
  #Use passpot-middlware for Google and facebook routes
+
+ #Replace html templates with Angular files names

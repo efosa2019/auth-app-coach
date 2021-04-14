@@ -9,3 +9,4 @@ const confirmPassword = check('confirmPassword', 'Passwords do not match').custo
 
 export const SignUpValidations = [name, email, password, confirmPassword];
 export const AuthenticateValidations = [email, password];
+export const ResetPassword = [email];
