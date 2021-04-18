@@ -21,7 +21,7 @@ const router = Router();
 router.post('/api/signup', SignUpValidations, Validator, async(req, res)=>{
    try{
     let { email } = req.body
-    //Check if an admin exist
+    //Check if an admin already exist
     let admin = await Admin.findOne({ email });
     if(admin){
         return res.status(400).json({

@@ -43,7 +43,7 @@ const AdminSchema =  new Schema({
         type: Date,
         required: false
     },
-}, { timestanps: true});
+}, { timestamps: true});
 
 //Hooks if password is modified or not
 AdminSchema.pre('save', async function(next){
