@@ -1,1 +1,1 @@
-export * from './admin-validator';
+export * from './coach-validator';

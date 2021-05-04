@@ -6,7 +6,7 @@ import { randomBytes} from "crypto";
 import  { pick } from  "lodash";
 
 
-const AdminSchema =  new Schema({
+const CoachSchema =  new Schema({
     name: {
         type: String,
         required: true,
@@ -46,20 +46,20 @@ const AdminSchema =  new Schema({
 }, { timestamps: true});
 
 //Hooks if password is modified or not
-AdminSchema.pre('save', async function(next){
-    let admin = this;
-    if(!admin.isModified("password")) return next();
-    admin.password = await hash(admin.password, 10);
+CoachSchema.pre('save', async function(next){
+    let coach = this;
+    if(!coach.isModified("password")) return next();
+    coach.password = await hash(coach.password, 10);
     next();
 })
 
 //To perform password verification when user tries to sign-in
-AdminSchema.methods.comparePassword = async function(password){
+CoachSchema.methods.comparePassword = async function(password){
     return await compare(password, this.password);
 }
 
 //To generate signIn token
-AdminSchema.methods.generateJWT = async function(){
+CoachSchema.methods.generateJWT = async function(){
     let payload = {
         name: this.name,
         email: this.email,
@@ -71,15 +71,15 @@ AdminSchema.methods.generateJWT = async function(){
 };
 
 //To generate password
-AdminSchema.methods.generatePasswordReset = function(){
+CoachSchema.methods.generatePasswordReset = function(){
     this.resetPasswordExpiresIn =Date.now() + 36000000;
     this.resetPasswordToken = randomBytes(20).toString("hex");
 }
 
 //Iterating arraysusing pick from lodash to filter password from the DB
- AdminSchema.methods.getAdminInfo = function(){
+ CoachSchema.methods.getCoachInfo = function(){
      return pick(this, ["_id", "name", "email", "verified"]);
  };
 
- const Admin =model("admins", AdminSchema);
- export default Admin;
+ const Coach =model("coaches", CoachSchema);
+ export default Coach;

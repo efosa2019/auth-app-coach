@@ -1,5 +1,5 @@
 import passport from "passport";
-import { Admin } from "../models";
+import { Coach } from "../models";
 import { Strategy, ExtractJwt } from "passport-jwt";
 import { SECRET as secretOrKey} from "../constants";
 
@@ -12,11 +12,11 @@ const opts = {
 passport.use(
     new Strategy(opts, async({ id }, done) =>{
         try{
-         let admin = await Admin.findById(id);
-         if (!admin){
-             throw new Error("Admin not found.")
+         let coach = await Coach.findById(id);
+         if (!coach){
+             throw new Error("Coach not found.")
          }
-         return done(null, admin.getAdminInfo());
+         return done(null, coach.getCoachInfo());
         }catch(err){
           done(null, false);
         }

@@ -9,7 +9,7 @@ import { json } from "body-parser";
 import { DB, PORT} from "./constants";
 
 //Router exports
-import adminApis from "./apis/admins";
+import coachApis from "./apis/coaches";
 
 //Import passport middleware
 require("./middlewares/passport-middleware");
@@ -23,7 +23,7 @@ app.use(json());
 app.use(passport.initialize());
 
 //Inject Sub router and apis
-app.use("/admins", adminApis);
+app.use("/coaches", coachApis);
 
 const main = async() => {
     try{
