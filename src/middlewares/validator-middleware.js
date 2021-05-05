@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 
 //Custom middlewares to validate inputs
-const validationMiddleware = (req, res, next) =>{
+const Validator = (req, res, next) =>{
     let errors = validationResult(req);
     if(!errors.isEmpty()){
     return res.json({
@@ -11,4 +11,4 @@ const validationMiddleware = (req, res, next) =>{
 next();
 };
 
-export default validationMiddleware;
+export default Validator;

@@ -9,7 +9,7 @@ const sendMail = async(email, subject, text, html) =>{
            html,
            text,
           subject,
-            to: email, // Change to your recipient
+            to: email, 
             from: HOST_EMAIL, // Change to your verified sender
           };
 
