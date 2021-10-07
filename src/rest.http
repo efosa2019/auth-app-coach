@@ -1,0 +1,6 @@
+POST http://localhost:3000/coaches/api/signup
+Content-Type: application/json
+{
+    "name": "Tom Fox",
+    "email": "fox@aol.com"
+}
